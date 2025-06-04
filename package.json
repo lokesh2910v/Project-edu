@@ -1,0 +1,26 @@
+{
+  "name": "Edu-app ",
+  "version": "1.0.0",
+  "description": "education",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix frontend\"",
+    "start:backend": "npm run dev --prefix server",
+    "start:frontend": "npm run dev --prefix frontend",
+    "build": "npm i --prefix frontend && npm run build --prefix frontend && npm i",
+    "start": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix frontend\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Loki",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^7.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
