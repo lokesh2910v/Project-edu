@@ -1,0 +1,285 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
+import { Users, BookOpen, Star, TrendingUp, Plus, UserMinus, UserX } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
+// Mock educator data
+const mockEducators = [
+  {
+    id: '1',
+    name: 'Sarah Johnson',
+    email: 'sarah.johnson@example.com',
+    courses: 5,
+    students: 1250,
+    rating: 4.8,
+    revenue: 45600,
+    joinedDate: '2023-01-15',
+    status: 'active'
+  },
+  {
+    id: '2', 
+    name: 'Michael Chen',
+    email: 'michael.chen@example.com',
+    courses: 3,
+    students: 890,
+    rating: 4.6,
+    revenue: 32400,
+    joinedDate: '2023-03-22',
+    status: 'active'
+  },
+  {
+    id: '3',
+    name: 'Emily Rodriguez',
+    email: 'emily.rodriguez@example.com',
+    courses: 7,
+    students: 2100,
+    rating: 4.9,
+    revenue: 78900,
+    joinedDate: '2022-11-08',
+    status: 'active'
+  },
+  {
+    id: '4',
+    name: 'David Kim',
+    email: 'david.kim@example.com',
+    courses: 2,
+    students: 450,
+    rating: 4.4,
+    revenue: 18900,
+    joinedDate: '2023-06-10',
+    status: 'inactive'
+  }
+];
+
+const EducatorAnalytics = () => {
+  const { toast } = useToast();
+  const [selectedEducator, setSelectedEducator] = useState<{id: string, name: string} | null>(null);
+  
+  const totalEducators = mockEducators.length;
+  const activeEducators = mockEducators.filter(e => e.status === 'active').length;
+  const totalRevenue = mockEducators.reduce((sum, e) => sum + e.revenue, 0);
+  const avgRating = mockEducators.reduce((sum, e) => sum + e.rating, 0) / mockEducators.length;
+
+  const handleMakeInactive = (educatorId: string, educatorName: string) => {
+    toast({
+      title: "Educator deactivated",
+      description: `${educatorName} has been made inactive successfully.`,
+    });
+    setSelectedEducator(null);
+  };
+
+  const handleRemoveEducator = (educatorId: string, educatorName: string) => {
+    toast({
+      title: "Educator removed",
+      description: `${educatorName} has been permanently removed from the platform.`,
+      variant: "destructive",
+    });
+    setSelectedEducator(null);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Educator Management</h1>
+            <p className="text-gray-600">Manage platform educators and their access</p>
+          </div>
+          <Button asChild>
+            <Link to="/admin/educators/add">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Educator
+            </Link>
+          </Button>
+        </div>
+
+        {/* Overview Stats */}
+        <div className="grid md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Educators</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalEducators}</div>
+              <p className="text-xs text-muted-foreground">
+                +2 from last month
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active Educators</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{activeEducators}</div>
+              <p className="text-xs text-muted-foreground">
+                {((activeEducators / totalEducators) * 100).toFixed(1)}% of total
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+              <BookOpen className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">${totalRevenue.toLocaleString()}</div>
+              <p className="text-xs text-muted-foreground">
+                Generated by educators
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Average Rating</CardTitle>
+              <Star className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{avgRating.toFixed(1)}</div>
+              <p className="text-xs text-muted-foreground">
+                Platform average
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Educators Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle>All Educators</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Educator</TableHead>
+                  <TableHead>Courses</TableHead>
+                  <TableHead>Students</TableHead>
+                  <TableHead>Rating</TableHead>
+                  <TableHead>Revenue</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {mockEducators.map((educator) => (
+                  <TableRow key={educator.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{educator.name}</div>
+                        <div className="text-sm text-gray-500">{educator.email}</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>{educator.courses}</TableCell>
+                    <TableCell>{educator.students}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center">
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
+                        {educator.rating}
+                      </div>
+                    </TableCell>
+                    <TableCell>${educator.revenue.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Badge variant={educator.status === 'active' ? 'default' : 'secondary'}>
+                        {educator.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link to={`/admin/educators/${educator.id}`}>
+                            View Details
+                          </Link>
+                        </Button>
+                        {educator.status === 'active' && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="text-orange-600 hover:text-orange-700 hover:bg-orange-50"
+                              >
+                                <UserX className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Make Educator Inactive</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to make {educator.name} inactive? This will prevent them from accessing educator features but won't delete their account.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-orange-600 hover:bg-orange-700"
+                                  onClick={() => handleMakeInactive(educator.id, educator.name)}
+                                >
+                                  Make Inactive
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <UserMinus className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Remove Educator</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to permanently remove {educator.name} from the platform? This action cannot be undone and will delete all their data.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-red-600 hover:bg-red-700"
+                                onClick={() => handleRemoveEducator(educator.id, educator.name)}
+                              >
+                                Remove Permanently
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default EducatorAnalytics;
